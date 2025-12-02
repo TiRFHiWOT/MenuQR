@@ -77,8 +77,8 @@ export default function AdminShopsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow">
+    <div className="min-h-screen bg-[var(--background)]">
+      <nav className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
@@ -90,7 +90,7 @@ export default function AdminShopsPage() {
               </span>
               <button
                 onClick={() => signOut()}
-                className="text-sm text-gray-600 hover:text-gray-900"
+                className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
               >
                 Sign out
               </button>
@@ -99,40 +99,37 @@ export default function AdminShopsPage() {
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto section">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">Shops</h2>
-          <Link
-            href="/admin/shops/new"
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
+          <Link href="/admin/shops/new" className="btn-primary">
             Create Shop
           </Link>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {shops.map((shop) => (
-            <div key={shop.id} className="bg-white rounded-lg shadow p-6">
+            <div key={shop.id} className="card">
               <h3 className="text-lg font-semibold mb-2">{shop.name}</h3>
               {shop.location && (
-                <p className="text-sm text-gray-600 mb-2">{shop.location}</p>
+                <p className="text-sm text-muted mb-2">{shop.location}</p>
               )}
-              <p className="text-sm text-gray-600 mb-2">
+              <p className="text-sm text-muted mb-2">
                 Owner: {shop.owner.name || shop.owner.email}
               </p>
-              <p className="text-sm text-gray-600 mb-4">
+              <p className="text-sm text-muted mb-4">
                 {shop._count.menus} menu items • {shop._count.tables} tables
               </p>
               <div className="flex space-x-2">
                 <Link
                   href={`/admin/shops/${shop.id}`}
-                  className="flex-1 text-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  className="flex-1 text-center btn-primary"
                 >
                   View
                 </Link>
                 <button
                   onClick={() => handleDelete(shop.id)}
-                  className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                  className="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all duration-150 active:scale-95"
                 >
                   Delete
                 </button>
@@ -143,7 +140,7 @@ export default function AdminShopsPage() {
 
         {shops.length === 0 && !loading && (
           <div className="text-center py-12">
-            <p className="text-gray-600">
+            <p className="text-muted">
               No shops found. Create your first shop!
             </p>
           </div>

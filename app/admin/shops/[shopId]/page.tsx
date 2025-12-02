@@ -81,8 +81,8 @@ export default function ShopDetailPage({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow">
+    <div className="min-h-screen bg-[var(--background)]">
+      <nav className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
@@ -94,11 +94,11 @@ export default function ShopDetailPage({
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto section">
         <div className="mb-6">
           <h2 className="text-2xl font-bold">{shop.name}</h2>
-          {shop.location && <p className="text-gray-600">{shop.location}</p>}
-          <p className="text-sm text-gray-600 mt-2">
+          {shop.location && <p className="text-muted">{shop.location}</p>}
+          <p className="text-sm text-muted mt-2">
             Owner: {shop.owner.name || shop.owner.email}
           </p>
         </div>
@@ -108,19 +108,19 @@ export default function ShopDetailPage({
             <h3 className="text-xl font-semibold mb-4">
               Menu Items ({shop.menus.length})
             </h3>
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="card">
               {shop.menus.length === 0 ? (
-                <p className="text-gray-600">No menu items</p>
+                <p className="text-muted">No menu items</p>
               ) : (
                 <div className="space-y-4">
                   {shop.menus.map((item) => (
                     <div
                       key={item.id}
-                      className="flex items-center justify-between border-b pb-4"
+                      className="flex items-center justify-between border-b border-[var(--border)] pb-4 last:border-0"
                     >
                       <div className="flex-1">
                         <h4 className="font-medium">{item.name}</h4>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-primary font-semibold">
                           ${item.price.toFixed(2)}
                         </p>
                       </div>
@@ -128,7 +128,7 @@ export default function ShopDetailPage({
                         <img
                           src={item.imageUrl}
                           alt={item.name}
-                          className="w-16 h-16 object-cover rounded"
+                          className="w-16 h-16 object-cover rounded-xl"
                         />
                       )}
                     </div>
@@ -142,15 +142,15 @@ export default function ShopDetailPage({
             <h3 className="text-xl font-semibold mb-4">
               Tables ({shop.tables.length})
             </h3>
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="card">
               {shop.tables.length === 0 ? (
-                <p className="text-gray-600">No tables</p>
+                <p className="text-muted">No tables</p>
               ) : (
                 <div className="grid grid-cols-4 gap-2">
                   {shop.tables.map((table) => (
                     <div
                       key={table.id}
-                      className="text-center p-3 bg-gray-100 rounded"
+                      className="text-center p-3 bg-[var(--muted)] rounded-xl"
                     >
                       Table {table.tableNumber}
                     </div>

@@ -61,8 +61,8 @@ export default function NewShopPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow">
+    <div className="min-h-screen bg-[var(--background)]">
+      <nav className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
@@ -74,15 +74,12 @@ export default function NewShopPage() {
         </div>
       </nav>
 
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-2xl mx-auto section">
         <h2 className="text-2xl font-bold mb-6">Create New Shop</h2>
 
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white rounded-lg shadow p-6 space-y-4"
-        >
+        <form onSubmit={handleSubmit} className="card space-y-4">
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
               {error}
             </div>
           )}
@@ -90,7 +87,7 @@ export default function NewShopPage() {
           <div>
             <label
               htmlFor="name"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-gray-800 mb-1"
             >
               Shop Name *
             </label>
@@ -100,14 +97,13 @@ export default function NewShopPage() {
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
           <div>
             <label
               htmlFor="location"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-gray-800 mb-1"
             >
               Location
             </label>
@@ -116,14 +112,13 @@ export default function NewShopPage() {
               type="text"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
           <div>
             <label
               htmlFor="ownerId"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-gray-800 mb-1"
             >
               Owner *
             </label>
@@ -132,7 +127,6 @@ export default function NewShopPage() {
               required
               value={ownerId}
               onChange={(e) => setOwnerId(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="">Select an owner</option>
               {owners.map((owner) => (
@@ -147,13 +141,13 @@ export default function NewShopPage() {
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+              className="flex-1 btn-primary disabled:opacity-50"
             >
               {loading ? "Creating..." : "Create Shop"}
             </button>
             <Link
               href="/admin/shops"
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-center"
+              className="px-4 py-2 bg-gray-600 text-white rounded-xl hover:bg-gray-700 text-center transition-all duration-150 active:scale-95"
             >
               Cancel
             </Link>

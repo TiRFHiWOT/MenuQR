@@ -11,6 +11,18 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        primary: {
+          DEFAULT: "var(--primary)",
+          dark: "var(--primary-dark)",
+          light: "var(--primary-light)",
+          soft: "var(--primary-soft)",
+        },
+        muted: "var(--muted)",
+        border: "var(--border)",
+      },
+      borderRadius: {
+        xl: "var(--radius)",
+        "2xl": "calc(var(--radius) * 1.5)",
       },
     },
   },

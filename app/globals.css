@@ -2,26 +2,136 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ===============================
+   Root Defaults
+================================*/
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fafafa;
+  --foreground: #0f0f0f;
+
+  --primary: #d7263d;
+  --primary-dark: #a51c2d;
+  --primary-light: #f2576e;
+  --primary-soft: #ffe5e8;
+
+  --muted: #e6e6e6;
+  --border: #d3d3d3;
+
+  --radius: 1rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Dark Mode (optional later) */
+.dark {
+  --background: #0f0f0f;
+  --foreground: #ffffff;
 }
 
+/* ===============================
+   Base Styles
+================================*/
+html,
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  @apply bg-[var(--background)] text-[var(--foreground)] font-sans antialiased;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+/* Remove outline on click but keep accessibility */
+*:focus {
+  outline: none;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+/* ===============================
+   Typography
+================================*/
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  @apply font-semibold tracking-tight;
+}
+
+p {
+  @apply text-gray-700 leading-relaxed;
+}
+
+/* ===============================
+   Buttons
+================================*/
+
+/* Primary Button */
+.btn-primary {
+  @apply bg-[var(--primary)] text-white px-4 py-2 rounded-xl 
+         font-medium transition-all duration-150
+         hover:bg-[var(--primary-dark)] active:scale-95;
+}
+
+/* Secondary (outline) Button */
+.btn-secondary {
+  @apply border border-[var(--primary)] text-[var(--primary)]
+         px-4 py-2 rounded-xl font-medium transition-all duration-150
+         hover:bg-[var(--primary-soft)] active:scale-95;
+}
+
+/* Soft Background Tag */
+.badge {
+  @apply bg-[var(--primary-soft)] text-[var(--primary-dark)]
+         px-3 py-1 rounded-lg text-sm font-medium;
+}
+
+/* ===============================
+   Cards
+================================*/
+.card {
+  @apply bg-white rounded-2xl border border-[var(--border)]
+         shadow-sm p-5;
+}
+
+/* ===============================
+   Inputs
+================================*/
+input,
+select,
+textarea {
+  @apply w-full border border-[var(--border)]
+         rounded-xl px-3 py-2 
+         focus:border-[var(--primary)]
+         focus:ring-2 focus:ring-[var(--primary-soft)]
+         transition;
+}
+
+label {
+  @apply font-medium mb-1 block text-sm text-gray-800;
+}
+
+/* ===============================
+   Utility Helpers
+================================*/
+.section {
+  @apply py-6 px-4 md:px-8;
+}
+
+.text-muted {
+  @apply text-gray-500;
+}
+
+.text-primary {
+  @apply text-[var(--primary)];
+}
+
+.bg-primary {
+  @apply bg-[var(--primary)];
+}
+
+.rounded-xl {
+  border-radius: var(--radius);
+}
+
+.rounded-2xl {
+  border-radius: calc(var(--radius) * 1.5);
 }

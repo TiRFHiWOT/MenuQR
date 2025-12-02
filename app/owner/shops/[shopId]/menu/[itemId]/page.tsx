@@ -106,10 +106,10 @@ export default function MenuItemDetailPage({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading menu item...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted">Loading menu item...</p>
         </div>
       </div>
     );
@@ -117,8 +117,8 @@ export default function MenuItemDetailPage({
 
   if (error && !menuItem) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <nav className="bg-white shadow">
+      <div className="min-h-screen bg-[var(--background)]">
+        <nav className="bg-white shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between h-16">
               <div className="flex items-center space-x-4">
@@ -129,13 +129,13 @@ export default function MenuItemDetailPage({
             </div>
           </div>
         </nav>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        <div className="max-w-7xl mx-auto section">
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
             {error}
           </div>
           <Link
             href={`/owner/shops/${shopId}/menu`}
-            className="mt-4 inline-block text-blue-600 hover:text-blue-800"
+            className="mt-4 inline-block text-primary hover:text-primary-dark transition-colors"
           >
             ← Back to Menu
           </Link>
@@ -149,8 +149,8 @@ export default function MenuItemDetailPage({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow">
+    <div className="min-h-screen bg-[var(--background)]">
+      <nav className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center space-x-4">
@@ -162,10 +162,10 @@ export default function MenuItemDetailPage({
         </div>
       </nav>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-4xl mx-auto section">
         <Link
           href={`/owner/shops/${shopId}/menu`}
-          className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-6"
+          className="inline-flex items-center text-primary hover:text-primary-dark mb-6 transition-colors"
         >
           <svg
             className="w-5 h-5 mr-2"
@@ -184,27 +184,27 @@ export default function MenuItemDetailPage({
         </Link>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6">
             {error}
           </div>
         )}
 
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div className="card overflow-hidden">
           <div className="md:flex">
             {/* Image Section */}
-            <div className="md:w-1/2 bg-gray-100 flex items-center justify-center p-8">
+            <div className="md:w-1/2 bg-[var(--muted)] flex items-center justify-center p-8">
               {menuItem.imageUrl ? (
                 <div className="relative w-full h-96">
                   <Image
                     src={menuItem.imageUrl}
                     alt={menuItem.name}
                     fill
-                    className="object-cover rounded-lg"
+                    className="object-cover rounded-2xl"
                     sizes="(max-width: 768px) 100vw, 50vw"
                   />
                 </div>
               ) : (
-                <div className="w-full h-96 bg-gray-200 rounded-lg flex items-center justify-center">
+                <div className="w-full h-96 bg-[var(--muted)] rounded-2xl flex items-center justify-center">
                   <svg
                     className="w-24 h-24 text-gray-400"
                     fill="none"
@@ -228,19 +228,19 @@ export default function MenuItemDetailPage({
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">
                   {menuItem.name}
                 </h1>
-                <p className="text-2xl font-semibold text-blue-600">
+                <p className="text-2xl font-semibold text-primary">
                   ${menuItem.price.toFixed(2)}
                 </p>
               </div>
 
-              <div className="border-t border-gray-200 pt-6 mb-6">
-                <h2 className="text-sm font-medium text-gray-500 mb-2">Shop</h2>
+              <div className="border-t border-[var(--border)] pt-6 mb-6">
+                <h2 className="text-sm font-medium text-muted mb-2">Shop</h2>
                 <p className="text-lg text-gray-900">{menuItem.shop.name}</p>
               </div>
 
               {menuItem.createdAt && (
-                <div className="border-t border-gray-200 pt-6 mb-6">
-                  <h2 className="text-sm font-medium text-gray-500 mb-2">
+                <div className="border-t border-[var(--border)] pt-6 mb-6">
+                  <h2 className="text-sm font-medium text-muted mb-2">
                     Created
                   </h2>
                   <p className="text-gray-900">
@@ -256,8 +256,8 @@ export default function MenuItemDetailPage({
               )}
 
               {menuItem.updatedAt && (
-                <div className="border-t border-gray-200 pt-6 mb-6">
-                  <h2 className="text-sm font-medium text-gray-500 mb-2">
+                <div className="border-t border-[var(--border)] pt-6 mb-6">
+                  <h2 className="text-sm font-medium text-muted mb-2">
                     Last Updated
                   </h2>
                   <p className="text-gray-900">
@@ -272,17 +272,17 @@ export default function MenuItemDetailPage({
                 </div>
               )}
 
-              <div className="border-t border-gray-200 pt-6 flex space-x-4">
+              <div className="border-t border-[var(--border)] pt-6 flex space-x-4">
                 <Link
                   href={`/owner/shops/${shopId}/menu`}
-                  className="flex-1 text-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="flex-1 text-center btn-primary"
                 >
                   Back to Menu
                 </Link>
                 <button
                   onClick={handleDelete}
                   disabled={deleting}
-                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all duration-150 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {deleting ? "Deleting..." : "Delete Item"}
                 </button>

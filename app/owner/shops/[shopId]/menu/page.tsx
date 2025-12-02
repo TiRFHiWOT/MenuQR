@@ -183,8 +183,8 @@ export default function MenuPage({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow">
+    <div className="min-h-screen bg-[var(--background)]">
+      <nav className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center space-x-4">
@@ -198,7 +198,7 @@ export default function MenuPage({
               </span>
               <button
                 onClick={() => signOut()}
-                className="text-sm text-gray-600 hover:text-gray-900"
+                className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
               >
                 Sign out
               </button>
@@ -207,7 +207,7 @@ export default function MenuPage({
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto section">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">Menu Items</h2>
           <button
@@ -216,14 +216,14 @@ export default function MenuPage({
               setEditingItem(null);
               setFormData({ name: "", price: "", imageUrl: "" });
             }}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="btn-primary"
           >
             Add Menu Item
           </button>
         </div>
 
         {showForm && (
-          <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <div className="card mb-6">
             <h3 className="text-lg font-semibold mb-4">
               {editingItem ? "Edit Menu Item" : "Add Menu Item"}
             </h3>
@@ -233,12 +233,12 @@ export default function MenuPage({
               name="menu-item-form"
             >
               {submitError && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
                   {submitError}
                 </div>
               )}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-800 mb-1">
                   Name *
                 </label>
                 <input
@@ -256,16 +256,15 @@ export default function MenuPage({
                       name: newName,
                     }));
                   }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 />
                 {formData.name && (
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-muted mt-1">
                     Name: "{formData.name}"
                   </p>
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-800 mb-1">
                   Price *
                 </label>
                 <input
@@ -280,28 +279,27 @@ export default function MenuPage({
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, price: e.target.value }))
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-800 mb-1">
                   Image
                 </label>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={handleImageUpload}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  className="w-full px-3 py-2 border border-[var(--border)] rounded-xl"
                   disabled={uploading}
                 />
                 {uploading && (
-                  <p className="text-sm text-gray-600 mt-1">Uploading...</p>
+                  <p className="text-sm text-muted mt-1">Uploading...</p>
                 )}
                 {formData.imageUrl && (
                   <img
                     src={formData.imageUrl}
                     alt="Preview"
-                    className="mt-2 w-32 h-32 object-cover rounded"
+                    className="mt-2 w-32 h-32 object-cover rounded-xl"
                   />
                 )}
               </div>
@@ -309,7 +307,7 @@ export default function MenuPage({
                 <button
                   type="submit"
                   disabled={submitting || !shopId}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {submitting ? "Saving..." : editingItem ? "Update" : "Create"}
                 </button>
@@ -320,7 +318,7 @@ export default function MenuPage({
                     setEditingItem(null);
                     setFormData({ name: "", price: "", imageUrl: "" });
                   }}
-                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                  className="px-4 py-2 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-all duration-150 active:scale-95"
                 >
                   Cancel
                 </button>
@@ -331,12 +329,9 @@ export default function MenuPage({
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {menuItems.map((item) => (
-            <div
-              key={item.id}
-              className="bg-white rounded-lg shadow overflow-hidden"
-            >
+            <div key={item.id} className="card overflow-hidden">
               {item.imageUrl && (
-                <div className="relative w-full h-48">
+                <div className="relative w-full h-48 -m-5 mb-4">
                   <Image
                     src={item.imageUrl}
                     alt={item.name}
@@ -345,27 +340,27 @@ export default function MenuPage({
                   />
                 </div>
               )}
-              <div className="p-4">
+              <div>
                 <h3 className="text-lg font-semibold mb-1">{item.name}</h3>
-                <p className="text-xl font-bold text-blue-600 mb-4">
+                <p className="text-xl font-bold text-primary mb-4">
                   ${item.price.toFixed(2)}
                 </p>
                 <div className="flex space-x-2">
                   <Link
                     href={`/owner/shops/${shopId}/menu/${item.id}`}
-                    className="flex-1 text-center px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                    className="flex-1 text-center btn-primary"
                   >
                     View
                   </Link>
                   <button
                     onClick={() => handleEdit(item)}
-                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                    className="flex-1 btn-secondary"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => handleDelete(item.id)}
-                    className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                    className="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all duration-150 active:scale-95"
                   >
                     Delete
                   </button>
@@ -377,7 +372,7 @@ export default function MenuPage({
 
         {menuItems.length === 0 && !loading && (
           <div className="text-center py-12">
-            <p className="text-gray-600">
+            <p className="text-muted">
               No menu items yet. Add your first item!
             </p>
           </div>

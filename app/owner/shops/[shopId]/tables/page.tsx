@@ -65,13 +65,48 @@ export default function TablesPage({
   };
 
   const generateQRCodes = async () => {
-    const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
+    // Get base URL - use environment variable if set, otherwise detect network IP
+    let baseUrl = "";
+
+    if (typeof window !== "undefined") {
+      // Check for environment variable first
+      const envBaseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+
+      if (envBaseUrl) {
+        baseUrl = envBaseUrl;
+      } else {
+        // In development, replace localhost with network IP
+        const currentOrigin = window.location.origin;
+        const port = window.location.port || "3000";
+
+        // Check if we're on localhost
+        if (
+          currentOrigin.includes("localhost") ||
+          currentOrigin.includes("127.0.0.1")
+        ) {
+          // Use network IP for QR codes (default to 192.168.8.32, can be overridden)
+          const networkIP =
+            process.env.NEXT_PUBLIC_NETWORK_IP || "192.168.8.32";
+          baseUrl = `http://${networkIP}:${port}`;
+        } else {
+          baseUrl = currentOrigin;
+        }
+      }
+    }
+
     const codes: Record<string, string> = {};
 
     for (const table of tables) {
       const url = `${baseUrl}/shop/${shopId}/table/${table.id}`;
       try {
-        const qrDataUrl = await QRCode.toDataURL(url);
+        // Generate QR code with proper settings for mobile scanning
+        const qrDataUrl = await QRCode.toDataURL(url, {
+          errorCorrectionLevel: "M",
+          type: "image/png",
+          quality: 0.92,
+          margin: 1,
+          width: 512,
+        });
         codes[table.id] = qrDataUrl;
       } catch (error) {
         console.error("Error generating QR code:", error);
@@ -137,8 +172,8 @@ export default function TablesPage({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow">
+    <div className="min-h-screen bg-[var(--background)]">
+      <nav className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center space-x-4">
@@ -152,7 +187,7 @@ export default function TablesPage({
               </span>
               <button
                 onClick={() => signOut()}
-                className="text-sm text-gray-600 hover:text-gray-900"
+                className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
               >
                 Sign out
               </button>
@@ -161,10 +196,10 @@ export default function TablesPage({
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto section">
         <h2 className="text-2xl font-bold mb-6">Tables & QR Codes</h2>
 
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
+        <div className="card mb-6">
           <h3 className="text-lg font-semibold mb-4">Add New Table</h3>
           <form onSubmit={handleAddTable} className="flex space-x-4">
             <input
@@ -174,12 +209,9 @@ export default function TablesPage({
               value={tableNumber}
               onChange={(e) => setTableNumber(e.target.value)}
               placeholder="Table number"
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="flex-1"
             />
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
+            <button type="submit" className="btn-primary">
               Add Table
             </button>
           </form>
@@ -187,7 +219,7 @@ export default function TablesPage({
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {tables.map((table) => (
-            <div key={table.id} className="bg-white rounded-lg shadow p-6">
+            <div key={table.id} className="card">
               <h3 className="text-lg font-semibold mb-4 text-center">
                 Table {table.tableNumber}
               </h3>
@@ -196,23 +228,23 @@ export default function TablesPage({
                   <img
                     src={qrCodes[table.id]}
                     alt={`QR Code for Table ${table.tableNumber}`}
-                    className="w-48 h-48"
+                    className="w-48 h-48 rounded-xl"
                   />
                   <button
                     onClick={() => downloadQR(table.id, table.tableNumber)}
-                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                    className="w-full btn-primary"
                   >
                     Download QR
                   </button>
                   <button
                     onClick={() => handleDelete(table.id)}
-                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                    className="w-full px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all duration-150 active:scale-95"
                   >
                     Delete Table
                   </button>
                 </div>
               ) : (
-                <div className="text-center text-gray-600">
+                <div className="text-center text-muted">
                   Generating QR code...
                 </div>
               )}
@@ -222,9 +254,7 @@ export default function TablesPage({
 
         {tables.length === 0 && !loading && (
           <div className="text-center py-12">
-            <p className="text-gray-600">
-              No tables yet. Add your first table!
-            </p>
+            <p className="text-muted">No tables yet. Add your first table!</p>
           </div>
         )}
       </div>
