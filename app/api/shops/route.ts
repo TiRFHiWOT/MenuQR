@@ -185,6 +185,30 @@ export async function POST(request: Request) {
           },
         },
       });
+
+      // Create default categories for the new shop
+      const defaultCategories = [
+        "Breakfast",
+        "Lunch",
+        "Dinner",
+        "Appetizers",
+        "Main Courses",
+        "Desserts",
+        "Drinks",
+        "Beverages",
+        "Specials",
+      ];
+
+      await Promise.all(
+        defaultCategories.map((categoryName) =>
+          prisma.category.create({
+            data: {
+              name: categoryName,
+              shopId: shop.id,
+            },
+          })
+        )
+      );
     } catch (prismaError: any) {
       // If Prisma fails due to connection issue, use Supabase REST API
       const isConnectionError =
@@ -231,6 +255,29 @@ export async function POST(request: Request) {
           ...newShop,
           owner: owner || null,
         };
+
+        // Create default categories for the new shop
+        const defaultCategories = [
+          "Breakfast",
+          "Lunch",
+          "Dinner",
+          "Appetizers",
+          "Main Courses",
+          "Desserts",
+          "Drinks",
+          "Beverages",
+          "Specials",
+        ];
+
+        const categoriesToInsert = defaultCategories.map((name) => ({
+          id: createId(),
+          name,
+          shopId: shop.id,
+          createdAt: now,
+          updatedAt: now,
+        }));
+
+        await supabase.from("Category").insert(categoriesToInsert);
       } else {
         throw prismaError;
       }

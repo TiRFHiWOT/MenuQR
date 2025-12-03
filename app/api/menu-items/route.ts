@@ -13,7 +13,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const { name, price, imageUrl, shopId } = await request.json();
+    const { name, price, imageUrl, businessId, categoryId } =
+      await request.json();
 
     // Validate required fields with detailed error messages
     const priceValue = typeof price === "string" ? parseFloat(price) : price;
@@ -39,9 +40,16 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!shopId) {
+    if (!businessId) {
       return NextResponse.json(
-        { error: "Missing required field: shopId" },
+        { error: "Missing required field: businessId" },
+        { status: 400 }
+      );
+    }
+
+    if (!categoryId) {
+      return NextResponse.json(
+        { error: "Category is required. Please select a category." },
         { status: 400 }
       );
     }
@@ -50,12 +58,12 @@ export async function POST(request: Request) {
 
     // Try Prisma first, fallback to Supabase REST API if Prisma fails
     try {
-      // Verify shop ownership with Prisma
-      const shop = await prisma.shop.findUnique({
-        where: { id: shopId },
+      // Verify business ownership with Prisma
+      const business = await prisma.business.findUnique({
+        where: { id: businessId },
       });
 
-      if (!shop || shop.ownerId !== session.user.id) {
+      if (!business || business.ownerId !== session.user.id) {
         return NextResponse.json({ error: "Forbidden" }, { status: 403 });
       }
 
@@ -64,7 +72,8 @@ export async function POST(request: Request) {
           name,
           price: priceValue,
           imageUrl,
-          shopId,
+          businessId,
+          categoryId,
         },
       });
     } catch (prismaError: any) {
@@ -82,21 +91,21 @@ export async function POST(request: Request) {
         );
         const supabase = createServerSupabaseClient();
 
-        // Verify shop ownership with Supabase
-        const { data: shop, error: shopError } = await supabase
-          .from("Shop")
+        // Verify business ownership with Supabase
+        const { data: business, error: businessError } = await supabase
+          .from("Business")
           .select("ownerId")
-          .eq("id", shopId)
+          .eq("id", businessId)
           .single();
 
-        if (shopError || !shop) {
+        if (businessError || !business) {
           return NextResponse.json(
-            { error: "Shop not found" },
+            { error: "Business not found" },
             { status: 404 }
           );
         }
 
-        if (shop.ownerId !== session.user.id) {
+        if (business.ownerId !== session.user.id) {
           return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
@@ -111,7 +120,8 @@ export async function POST(request: Request) {
             name,
             price: priceValue,
             imageUrl: imageUrl || null,
-            shopId,
+            categoryId,
+            businessId,
             createdAt: now,
             updatedAt: now,
           })

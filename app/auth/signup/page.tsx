@@ -2,19 +2,42 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Link from "next/link";
+import { Building2 } from "lucide-react";
+import Button from "@/components/ui/Button";
+import { toast } from "sonner";
 
 export default function SignupPage() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState<"ADMIN" | "OWNER">("OWNER");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const getPasswordStrength = (pwd: string) => {
+    if (pwd.length === 0) return { strength: 0, label: "" };
+    if (pwd.length < 6) return { strength: 1, label: "Weak" };
+    if (pwd.length < 10) return { strength: 2, label: "Medium" };
+    return { strength: 3, label: "Strong" };
+  };
+
+  const passwordStrength = getPasswordStrength(password);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -27,38 +50,37 @@ export default function SignupPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || "Failed to create account");
+        toast.error(data.error || "Failed to create account");
         setLoading(false);
         return;
       }
 
+      toast.success("Account created successfully!");
       router.push("/auth/login");
     } catch (err) {
-      setError("An error occurred. Please try again.");
+      toast.error("An error occurred. Please try again.");
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
-      <div className="max-w-md w-full space-y-8 p-8 card">
-        <div>
-          <h2 className="text-center text-3xl font-bold">Sign up</h2>
-          <p className="mt-2 text-center text-sm text-muted">
-            Create a new account
-          </p>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
-              {error}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+      <div className="max-w-md w-full">
+        <div className="bg-white rounded-2xl border border-gray-200 p-8">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-2xl mb-4">
+              <Building2 className="h-8 w-8 text-primary" />
             </div>
-          )}
-          <div className="space-y-4">
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+              Create Account
+            </h2>
+            <p className="text-gray-600">Sign up to get started with MenuQR</p>
+          </div>
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label
                 htmlFor="name"
-                className="block text-sm font-medium text-gray-800"
+                className="block text-sm font-semibold text-gray-700 mb-2"
               >
                 Name
               </label>
@@ -68,13 +90,14 @@ export default function SignupPage() {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="mt-1"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                placeholder="Enter your name"
               />
             </div>
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-800"
+                className="block text-sm font-semibold text-gray-700 mb-2"
               >
                 Email address
               </label>
@@ -85,13 +108,14 @@ export default function SignupPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                placeholder="Enter your email"
               />
             </div>
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-800"
+                className="block text-sm font-semibold text-gray-700 mb-2"
               >
                 Password
               </label>
@@ -102,46 +126,88 @@ export default function SignupPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-1"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                placeholder="Create a password"
+              />
+              {password && (
+                <div className="mt-2">
+                  <div className="flex gap-1 mb-1">
+                    {[1, 2, 3].map((level) => (
+                      <div
+                        key={level}
+                        className={`h-1 flex-1 rounded-full ${
+                          level <= passwordStrength.strength
+                            ? passwordStrength.strength === 1
+                              ? "bg-red-500"
+                              : passwordStrength.strength === 2
+                              ? "bg-yellow-500"
+                              : "bg-green-500"
+                            : "bg-gray-200"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    {passwordStrength.label &&
+                      `Password strength: ${passwordStrength.label}`}
+                  </p>
+                </div>
+              )}
+            </div>
+            <div>
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
+                Confirm Password
+              </label>
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                placeholder="Confirm your password"
               />
             </div>
             <div>
               <label
                 htmlFor="role"
-                className="block text-sm font-medium text-gray-800"
+                className="block text-sm font-semibold text-gray-700 mb-2"
               >
-                Role
+                Account Type
               </label>
               <select
                 id="role"
                 name="role"
                 value={role}
                 onChange={(e) => setRole(e.target.value as "ADMIN" | "OWNER")}
-                className="mt-1"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
               >
-                <option value="OWNER">Owner</option>
+                <option value="OWNER">Business Owner</option>
                 <option value="ADMIN">Admin</option>
               </select>
             </div>
-          </div>
-          <div>
-            <button
+            <Button
               type="submit"
-              disabled={loading}
-              className="w-full btn-primary disabled:opacity-50"
+              variant="primary"
+              className="w-full"
+              loading={loading}
             >
-              {loading ? "Creating account..." : "Sign up"}
-            </button>
-          </div>
-          <div className="text-center">
-            <a
-              href="/auth/login"
-              className="text-sm text-primary hover:text-primary-dark transition-colors"
-            >
-              Already have an account? Sign in
-            </a>
-          </div>
-        </form>
+              Create Account
+            </Button>
+            <div className="text-center">
+              <Link
+                href="/auth/login"
+                className="text-sm text-primary hover:text-primary-dark transition-colors font-medium"
+              >
+                Already have an account? Sign in
+              </Link>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

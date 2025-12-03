@@ -8,7 +8,7 @@ async function getMenuItemWithPrisma(itemId: string, userId: string) {
   const menuItem = await prisma.menuItem.findUnique({
     where: { id: itemId },
     include: {
-      shop: {
+      business: {
         select: {
           id: true,
           name: true,
@@ -23,7 +23,7 @@ async function getMenuItemWithPrisma(itemId: string, userId: string) {
   }
 
   // Verify ownership
-  if (menuItem.shop.ownerId !== userId) {
+  if (menuItem.business.ownerId !== userId) {
     return null;
   }
 
@@ -44,22 +44,22 @@ async function getMenuItemWithSupabase(itemId: string, userId: string) {
   }
 
   // Verify ownership
-  const { data: shop } = await supabase
-    .from("Shop")
+  const { data: business } = await supabase
+    .from("Business")
     .select("id, name, ownerId")
-    .eq("id", menuItem.shopId)
+    .eq("id", menuItem.businessId)
     .single();
 
-  if (!shop || shop.ownerId !== userId) {
+  if (!business || business.ownerId !== userId) {
     return null;
   }
 
   return {
     ...menuItem,
-    shop: {
-      id: shop.id,
-      name: shop.name,
-      ownerId: shop.ownerId,
+    business: {
+      id: business.id,
+      name: business.name,
+      ownerId: business.ownerId,
     },
   };
 }
@@ -132,12 +132,19 @@ export async function PUT(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const { name, price, imageUrl } = await request.json();
+    const { name, price, imageUrl, categoryId } = await request.json();
+
+    if (!categoryId) {
+      return NextResponse.json(
+        { error: "Category is required. Please select a category." },
+        { status: 400 }
+      );
+    }
 
     // Get menu item and verify ownership
     const menuItem = await prisma.menuItem.findUnique({
       where: { id: params.itemId },
-      include: { shop: true },
+      include: { business: true },
     });
 
     if (!menuItem) {
@@ -147,24 +154,69 @@ export async function PUT(
       );
     }
 
-    if (menuItem.shop.ownerId !== session.user.id) {
+    if (menuItem.business.ownerId !== session.user.id) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const updated = await prisma.menuItem.update({
-      where: { id: params.itemId },
-      data: {
-        name,
-        price: parseFloat(price),
-        imageUrl,
-      },
-    });
+    let updated;
+
+    try {
+      updated = await prisma.menuItem.update({
+        where: { id: params.itemId },
+        data: {
+          name,
+          price: parseFloat(price),
+          imageUrl,
+          categoryId,
+        },
+      });
+    } catch (prismaError: any) {
+      const isConnectionError =
+        prismaError?.code === "P1001" ||
+        prismaError?.code === "P1013" ||
+        prismaError?.message?.includes("Can't reach database server") ||
+        prismaError?.message?.includes("database string is invalid") ||
+        prismaError?.message?.includes("provided arguments are not supported");
+
+      if (isConnectionError) {
+        console.log(
+          "Prisma connection failed, using Supabase REST API as fallback for menu item update..."
+        );
+        const supabase = createServerSupabaseClient();
+        const now = new Date().toISOString();
+
+        const { data: updatedItem, error: updateError } = await supabase
+          .from("MenuItem")
+          .update({
+            name,
+            price: parseFloat(price),
+            imageUrl: imageUrl || null,
+            categoryId,
+            updatedAt: now,
+          })
+          .eq("id", params.itemId)
+          .select()
+          .single();
+
+        if (updateError) {
+          throw new Error(`Supabase error: ${updateError.message}`);
+        }
+
+        updated = updatedItem;
+      } else {
+        throw prismaError;
+      }
+    }
 
     return NextResponse.json(updated);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error updating menu item:", error);
     return NextResponse.json(
-      { error: "Failed to update menu item" },
+      {
+        error: "Failed to update menu item",
+        details:
+          process.env.NODE_ENV === "development" ? error?.message : undefined,
+      },
       { status: 500 }
     );
   }
@@ -184,7 +236,7 @@ export async function DELETE(
     // Get menu item and verify ownership
     const menuItem = await prisma.menuItem.findUnique({
       where: { id: params.itemId },
-      include: { shop: true },
+      include: { business: true },
     });
 
     if (!menuItem) {
@@ -194,7 +246,7 @@ export async function DELETE(
       );
     }
 
-    if (menuItem.shop.ownerId !== session.user.id) {
+    if (menuItem.business.ownerId !== session.user.id) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

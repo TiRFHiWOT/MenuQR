@@ -29,6 +29,7 @@ export default withAuth(
 
         // Public routes don't need auth
         if (
+          path.startsWith("/business/") ||
           path.startsWith("/shop/") ||
           path.startsWith("/auth/") ||
           path === "/"
@@ -48,5 +49,5 @@ export default withAuth(
 );
 
 export const config = {
-  matcher: ["/admin/:path*", "/owner/:path*"],
+  matcher: ["/admin/:path*", "/owner/:path*", "/business/:path*"],
 };

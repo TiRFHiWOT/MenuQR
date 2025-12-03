@@ -15,9 +15,22 @@ async function getShopWithPrisma(shopId: string, userId: string, role: string) {
           email: true,
         },
       },
-      menus: true,
+      menus: {
+        include: {
+          category: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+        orderBy: { name: "asc" },
+      },
       tables: {
         orderBy: { tableNumber: "asc" },
+      },
+      categories: {
+        orderBy: { name: "asc" },
       },
     },
   });
@@ -64,9 +77,16 @@ async function getShopWithSupabase(
     .eq("id", shop.ownerId)
     .single();
 
-  // Fetch menus
+  // Fetch menus with categories
   const { data: menus } = await supabase
     .from("MenuItem")
+    .select("*")
+    .eq("shopId", shopId)
+    .order("name", { ascending: true });
+
+  // Fetch categories
+  const { data: categories } = await supabase
+    .from("Category")
     .select("*")
     .eq("shopId", shopId)
     .order("name", { ascending: true });
@@ -78,11 +98,26 @@ async function getShopWithSupabase(
     .eq("shopId", shopId)
     .order("tableNumber", { ascending: true });
 
+  // Map menus to include category info
+  const menusWithCategories = (menus || []).map((menu) => {
+    const category = categories?.find((cat) => cat.id === menu.categoryId);
+    return {
+      ...menu,
+      category: category
+        ? {
+            id: category.id,
+            name: category.name,
+          }
+        : null,
+    };
+  });
+
   return {
     ...shop,
     owner: owner || null,
-    menus: menus || [],
+    menus: menusWithCategories,
     tables: tables || [],
+    categories: categories || [],
   };
 }
 

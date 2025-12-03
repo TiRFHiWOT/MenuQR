@@ -17,47 +17,71 @@ enum Role {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  name      String?
-  email     String   @unique
-  password  String
-  role      Role
-  shops     Shop[]   @relation("OwnerShops")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String     @id @default(cuid())
+  name       String?
+  email      String     @unique
+  password   String
+  role       Role
+  businesses Business[] @relation("OwnerBusinesses")
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
 }
 
-model Shop {
-  id        String    @id @default(cuid())
-  name      String
-  location  String?
-  ownerId   String
-  owner     User      @relation("OwnerShops", fields: [ownerId], references: [id])
-  tables    Table[]
-  menus     MenuItem[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+model Business {
+  id          String     @id @default(cuid())
+  name        String
+  description String?
+  logoUrl     String?
+  ownerId     String
+  owner       User       @relation("OwnerBusinesses", fields: [ownerId], references: [id])
+  qrCodeUrl   String?
+  branches    Branch[]
+  menus       MenuItem[]
+  categories  Category[]
+  qrScans     QRScan[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 }
 
-model Table {
-  id          String   @id @default(cuid())
-  tableNumber Int
-  shopId      String
-  shop        Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model Branch {
+  id         String    @id @default(cuid())
+  name       String
+  address    String?
+  businessId String
+  business   Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
 
-  @@unique([shopId, tableNumber])
+model QRScan {
+  id         String    @id @default(cuid())
+  businessId String
+  business   Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  scannedAt  DateTime  @default(now())
+  ipAddress  String?
+  userAgent  String?
+}
+
+model Category {
+  id         String     @id @default(cuid())
+  name       String
+  businessId String
+  business   Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  items      MenuItem[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 }
 
 model MenuItem {
-  id        String   @id @default(cuid())
-  name      String
-  price     Float
-  imageUrl  String?
-  shopId    String
-  shop      Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String    @id @default(cuid())
+  name       String
+  price      Float
+  imageUrl   String?
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 }
 

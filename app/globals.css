@@ -88,8 +88,9 @@ p {
    Cards
 ================================*/
 .card {
-  @apply bg-white rounded-2xl border border-[var(--border)]
-         shadow-sm p-5;
+  @apply bg-white rounded-2xl border border-gray-200
+         p-5 transition-all duration-200
+         hover:border-gray-300;
 }
 
 /* ===============================
