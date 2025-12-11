@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface MenuItem {
   id: string;
@@ -125,9 +126,11 @@ export default function ShopDetailPage({
                         </p>
                       </div>
                       {item.imageUrl && (
-                        <img
+                        <Image
                           src={item.imageUrl}
                           alt={item.name}
+                          width={64}
+                          height={64}
                           className="w-16 h-16 object-cover rounded-xl"
                         />
                       )}

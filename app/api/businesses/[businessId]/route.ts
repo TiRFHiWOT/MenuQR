@@ -266,14 +266,17 @@ export async function PUT(
 
     let updatedBusiness;
     try {
+      const updateData: any = {
+        name: name || business.name,
+        description:
+          description !== undefined ? description : business.description,
+      };
+      if (logoUrl !== undefined) {
+        updateData.logoUrl = logoUrl;
+      }
       updatedBusiness = await prisma.business.update({
         where: { id: businessId },
-        data: {
-          name: name || business.name,
-          description:
-            description !== undefined ? description : business.description,
-          logoUrl: logoUrl !== undefined ? logoUrl : business.logoUrl,
-        },
+        data: updateData,
       });
     } catch (error) {
       const supabase = createServerSupabaseClient();

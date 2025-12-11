@@ -5,46 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { createServerSupabaseClient } from "@/lib/supabase";
 
 async function getShopWithPrisma(shopId: string, userId: string, role: string) {
-  const shop = await prisma.shop.findUnique({
-    where: { id: shopId },
-    include: {
-      owner: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-        },
-      },
-      menus: {
-        include: {
-          category: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-        },
-        orderBy: { name: "asc" },
-      },
-      tables: {
-        orderBy: { tableNumber: "asc" },
-      },
-      categories: {
-        orderBy: { name: "asc" },
-      },
-    },
-  });
-
-  if (!shop) {
-    return null;
-  }
-
-  // Check permissions
-  if (role === "OWNER" && shop.ownerId !== userId) {
-    throw new Error("Forbidden");
-  }
-
-  return shop;
+  // Prisma doesn't have Shop model, so always throw to use Supabase fallback
+  throw new Error("P1001"); // Connection error to trigger fallback
 }
 
 async function getShopWithSupabase(
@@ -198,9 +160,19 @@ export async function DELETE(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    await prisma.shop.delete({
-      where: { id: params.shopId },
-    });
+    // Prisma doesn't have Shop model, use Supabase directly
+    const supabase = createServerSupabaseClient();
+    const shopId =
+      params instanceof Promise ? (await params).shopId : params.shopId;
+
+    const { error: deleteError } = await supabase
+      .from("Shop")
+      .delete()
+      .eq("id", shopId);
+
+    if (deleteError) {
+      throw new Error(`Supabase error: ${deleteError.message}`);
+    }
 
     return NextResponse.json({ message: "Shop deleted" });
   } catch (error) {

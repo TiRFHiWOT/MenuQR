@@ -10,28 +10,8 @@ interface PageProps {
 }
 
 async function getShopWithPrisma(shopId: string) {
-  return await prisma.shop.findUnique({
-    where: { id: shopId },
-    include: {
-      menus: {
-        include: {
-          category: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-        },
-        orderBy: { name: "asc" },
-      },
-      tables: {
-        orderBy: { tableNumber: "asc" },
-      },
-      categories: {
-        orderBy: { name: "asc" },
-      },
-    },
-  });
+  // Prisma doesn't have Shop model, so always throw to use Supabase fallback
+  throw new Error("P1001"); // Connection error to trigger fallback
 }
 
 async function getShopWithSupabase(shopId: string) {
@@ -129,9 +109,8 @@ export async function generateMetadata({ params }: PageProps) {
   let shop;
 
   try {
-    shop = await prisma.shop.findUnique({
-      where: { id: shopId },
-    });
+    // Prisma doesn't have Shop model, so always throw to use Supabase fallback
+    throw new Error("P1001"); // Connection error to trigger fallback
   } catch (prismaError: any) {
     const isConnectionError =
       prismaError?.code === "P1001" ||

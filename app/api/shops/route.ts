@@ -6,42 +6,8 @@ import { createServerSupabaseClient } from "@/lib/supabase";
 import { createId } from "@paralleldrive/cuid2";
 
 async function getShopsWithPrisma(userId: string, role: string) {
-  if (role === "ADMIN") {
-    // Admin sees all shops
-    return await prisma.shop.findMany({
-      include: {
-        owner: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-        _count: {
-          select: {
-            menus: true,
-            tables: true,
-          },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-    });
-  } else if (role === "OWNER") {
-    // Owner sees only their shops
-    return await prisma.shop.findMany({
-      where: { ownerId: userId },
-      include: {
-        _count: {
-          select: {
-            menus: true,
-            tables: true,
-          },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-    });
-  }
-  return [];
+  // Prisma doesn't have Shop model, so always throw to use Supabase fallback
+  throw new Error("P1001"); // Connection error to trigger fallback
 }
 
 async function getShopsWithSupabase(userId: string, role: string) {
@@ -165,50 +131,12 @@ export async function POST(request: Request) {
       );
     }
 
-    let shop;
+    let shop: any;
 
     // Try Prisma first, fallback to Supabase REST API if Prisma fails
     try {
-      shop = await prisma.shop.create({
-        data: {
-          name,
-          location,
-          ownerId,
-        },
-        include: {
-          owner: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-            },
-          },
-        },
-      });
-
-      // Create default categories for the new shop
-      const defaultCategories = [
-        "Breakfast",
-        "Lunch",
-        "Dinner",
-        "Appetizers",
-        "Main Courses",
-        "Desserts",
-        "Drinks",
-        "Beverages",
-        "Specials",
-      ];
-
-      await Promise.all(
-        defaultCategories.map((categoryName) =>
-          prisma.category.create({
-            data: {
-              name: categoryName,
-              shopId: shop.id,
-            },
-          })
-        )
-      );
+      // Prisma doesn't have Shop model, so always throw to use Supabase fallback
+      throw new Error("P1001"); // Connection error to trigger fallback
     } catch (prismaError: any) {
       // If Prisma fails due to connection issue, use Supabase REST API
       const isConnectionError =

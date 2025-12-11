@@ -10,35 +10,8 @@ async function createTableWithPrisma(data: {
   shopId: string;
   ownerId: string;
 }) {
-  // Verify shop ownership
-  const shop = await prisma.shop.findUnique({
-    where: { id: data.shopId },
-  });
-
-  if (!shop || shop.ownerId !== data.ownerId) {
-    throw new Error("Forbidden");
-  }
-
-  // Check if table number already exists for this shop
-  const existing = await prisma.table.findUnique({
-    where: {
-      shopId_tableNumber: {
-        shopId: data.shopId,
-        tableNumber: data.tableNumber,
-      },
-    },
-  });
-
-  if (existing) {
-    throw new Error("Table number already exists");
-  }
-
-  return await prisma.table.create({
-    data: {
-      tableNumber: data.tableNumber,
-      shopId: data.shopId,
-    },
-  });
+  // Prisma doesn't have Shop model, so always throw to use Supabase fallback
+  throw new Error("P1001"); // Connection error to trigger fallback
 }
 
 async function createTableWithSupabase(data: {

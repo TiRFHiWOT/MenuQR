@@ -2,7 +2,7 @@
 
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import {
   Building2,
@@ -59,23 +59,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState<"day" | "week" | "month">("week");
 
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/auth/login");
-      return;
-    }
-
-    if (status === "authenticated" && session?.user.role !== "ADMIN") {
-      router.push("/owner/businesses");
-      return;
-    }
-
-    if (status === "authenticated") {
-      fetchData();
-    }
-  }, [session, status, router, period]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       // Fetch businesses
       const businessesRes = await fetch("/api/businesses");
@@ -113,22 +97,39 @@ export default function AdminDashboard() {
         const analyticsData = await analyticsRes.json();
         setScanData(analyticsData);
 
-        if (stats) {
-          setStats({
-            ...stats,
+        setStats((prevStats) => {
+          if (!prevStats) return prevStats;
+          return {
+            ...prevStats,
             scansToday: period === "day" ? analyticsData.periodScans : 0,
             scansThisWeek: period === "week" ? analyticsData.periodScans : 0,
             scansThisMonth: period === "month" ? analyticsData.periodScans : 0,
             trend: analyticsData.trend || 0,
-          });
-        }
+          };
+        });
       }
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [period]);
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/auth/login");
+      return;
+    }
+
+    if (status === "authenticated" && session?.user.role !== "ADMIN") {
+      router.push("/owner/businesses");
+      return;
+    }
+
+    if (status === "authenticated") {
+      fetchData();
+    }
+  }, [session, status, router, period, fetchData]);
 
   if (loading || status === "loading") {
     return (

@@ -21,37 +21,8 @@ async function createDefaultCategoriesWithPrisma(
   shopId: string,
   ownerId: string
 ) {
-  // Verify shop ownership
-  const shop = await prisma.shop.findUnique({
-    where: { id: shopId },
-  });
-
-  if (!shop || shop.ownerId !== ownerId) {
-    throw new Error("Forbidden");
-  }
-
-  // Check if categories already exist
-  const existingCategories = await prisma.category.findMany({
-    where: { shopId },
-  });
-
-  if (existingCategories.length > 0) {
-    return existingCategories; // Return existing if any exist
-  }
-
-  // Create default categories
-  const categories = await Promise.all(
-    DEFAULT_CATEGORIES.map((name) =>
-      prisma.category.create({
-        data: {
-          name,
-          shopId,
-        },
-      })
-    )
-  );
-
-  return categories;
+  // Prisma doesn't have Shop model, so always throw to use Supabase fallback
+  throw new Error("P1001"); // Connection error to trigger fallback
 }
 
 async function createDefaultCategoriesWithSupabase(
@@ -170,6 +141,3 @@ export async function POST(request: Request) {
     );
   }
 }
-
-
-

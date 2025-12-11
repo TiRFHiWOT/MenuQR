@@ -52,8 +52,11 @@ export default function BusinessMenuClient({
   const [mounted, setMounted] = useState(false);
   const { trackScan } = useQRCode();
 
-  const allItems = business.menus || [];
-  const allCategories = business.categories || [];
+  const allItems = useMemo(() => business.menus || [], [business.menus]);
+  const allCategories = useMemo(
+    () => business.categories || [],
+    [business.categories]
+  );
 
   // Only show categories that have items
   const categoriesWithItems = useMemo(() => {

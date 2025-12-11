@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, Plus, Edit, Trash2, Upload, X } from "lucide-react";
@@ -82,14 +82,7 @@ export default function BusinessMenuPage({
     getBusinessId();
   }, [params]);
 
-  useEffect(() => {
-    if (businessId) {
-      fetchMenuItems();
-      fetchCategories(businessId).then(setCategories);
-    }
-  }, [businessId]);
-
-  const fetchMenuItems = async () => {
+  const fetchMenuItems = useCallback(async () => {
     try {
       const response = await fetch(`/api/businesses/${businessId}`);
       if (response.ok) {
@@ -102,7 +95,14 @@ export default function BusinessMenuPage({
     } finally {
       setLoading(false);
     }
-  };
+  }, [businessId]);
+
+  useEffect(() => {
+    if (businessId) {
+      fetchMenuItems();
+      fetchCategories(businessId).then(setCategories);
+    }
+  }, [businessId, fetchMenuItems, fetchCategories]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -161,12 +161,15 @@ export default function BusinessMenuPage({
     }
   };
 
-  const handleDelete = async (itemId: string) => {
-    const success = await deleteMenuItem(itemId);
-    if (success) {
-      fetchMenuItems();
-    }
-  };
+  const handleDelete = useCallback(
+    async (itemId: string) => {
+      const success = await deleteMenuItem(itemId);
+      if (success) {
+        fetchMenuItems();
+      }
+    },
+    [deleteMenuItem, fetchMenuItems]
+  );
 
   const handleCategorySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -297,7 +300,7 @@ export default function BusinessMenuPage({
         enableSorting: false,
       },
     ],
-    [menuLoading]
+    [menuLoading, handleDelete]
   );
 
   if (loading) {

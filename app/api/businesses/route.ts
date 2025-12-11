@@ -242,7 +242,7 @@ export async function POST(request: Request) {
       );
     }
 
-    let business;
+    let business: any;
 
     // Try Prisma first, fallback to Supabase REST API if Prisma fails
     try {
@@ -253,15 +253,18 @@ export async function POST(request: Request) {
         "http://localhost:3000";
       const qrCodeDataUrl = await generateQRCode(businessId, requestForQR);
 
+      const createData: any = {
+        id: businessId,
+        name,
+        description: description || null,
+        ownerId: session.user.id,
+        qrCodeUrl: qrCodeDataUrl,
+      };
+      if (logoUrl !== undefined) {
+        createData.logoUrl = logoUrl || null;
+      }
       business = await prisma.business.create({
-        data: {
-          id: businessId,
-          name,
-          description: description || null,
-          logoUrl: logoUrl || null,
-          ownerId: session.user.id,
-          qrCodeUrl: qrCodeDataUrl,
-        },
+        data: createData,
         include: {
           owner: {
             select: {

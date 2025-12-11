@@ -384,7 +384,7 @@ export default function MenuPage({
                 />
                 {formData.name && (
                   <p className="text-xs text-muted mt-1">
-                    Name: "{formData.name}"
+                    Name: &quot;{formData.name}&quot;
                   </p>
                 )}
               </div>
@@ -449,9 +449,11 @@ export default function MenuPage({
                   <p className="text-sm text-muted mt-1">Uploading...</p>
                 )}
                 {formData.imageUrl && (
-                  <img
+                  <Image
                     src={formData.imageUrl}
                     alt="Preview"
+                    width={128}
+                    height={128}
                     className="mt-2 w-32 h-32 object-cover rounded-xl"
                   />
                 )}

@@ -5,20 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { createServerSupabaseClient } from "@/lib/supabase";
 
 async function getTableWithPrisma(tableId: string, userId: string) {
-  const table = await prisma.table.findUnique({
-    where: { id: tableId },
-    include: { shop: true },
-  });
-
-  if (!table) {
-    return null;
-  }
-
-  if (table.shop.ownerId !== userId) {
-    return null;
-  }
-
-  return table;
+  // Prisma doesn't have Shop/Table models, so always throw to use Supabase fallback
+  throw new Error("P1001"); // Connection error to trigger fallback
 }
 
 async function getTableWithSupabase(tableId: string, userId: string) {
@@ -90,9 +78,8 @@ export async function DELETE(
 
     // Delete table
     try {
-      await prisma.table.delete({
-        where: { id: tableId },
-      });
+      // Prisma doesn't have Table model, so always throw to use Supabase fallback
+      throw new Error("P1001"); // Connection error to trigger fallback
     } catch (prismaError: any) {
       const isConnectionError =
         prismaError?.code === "P1001" ||
